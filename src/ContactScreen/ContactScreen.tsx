@@ -17,11 +17,10 @@ const ContactScreen: React.FC = () => {
   const { API_URL } = useContext(AuthContext);
 
   const validateForm = () => {
-    const nameRegex = /^[a-zA-Z\s]{2,}$/;
+    const nameRegex = /^[a-zA-Z]+(?:\s[a-zA-Z]+)*$/;
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    const messageRegex = /^.{10,}$/;
+    const messageRegex = /^[\s\S]{10,}$/;
 
-    // Nettoyer le message
     const cleanedMessage = message.trim().replace(/\n+/g, ' ');
     console.log('Validation du message:', {
       original: message,
@@ -32,7 +31,7 @@ const ContactScreen: React.FC = () => {
     });
 
     if (!nameRegex.test(name)) {
-      Alert.alert('Erreur', 'Veuillez entrer un nom valide (au moins 2 caractères, lettres seulement).');
+      Alert.alert('Erreur', 'Veuillez entrer un nom valide (lettres seulement, un seul espace entre mots).');
       return false;
     }
     if (!emailRegex.test(email)) {
@@ -47,7 +46,6 @@ const ContactScreen: React.FC = () => {
   };
 
   const handleSubmit = async () => {
-    // Nettoyer le message pour l'envoi
     const cleanedMessage = message.trim().replace(/\n+/g, ' ');
     console.log('Soumission du formulaire:', {
       name,

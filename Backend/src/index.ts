@@ -4,12 +4,24 @@ import { Pool } from 'pg';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
+import sanitizeHtml from 'sanitize-html';
 
 dotenv.config();
 
 const app = express();
+app.use(helmet()); // En-têtes de sécurité HTTP
 app.use(cors());
 app.use(express.json());
+
+// Rate limiting
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // 100 requêtes par IP
+  message: { error: 'Trop de requêtes, veuillez réessayer plus tard' },
+});
+app.use(limiter);
 
 const pool = new Pool({
   host: process.env.DB_HOST,
@@ -56,6 +68,10 @@ app.post('/register', async (req: Request, res: Response) => {
   console.log('Requête /register reçue:', { firstName, lastName, email, passwordLength: password.length });
   if (!firstName || !lastName || !email || !password) {
     return res.status(400).json({ error: 'Tous les champs sont requis' });
+  }
+  const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  if (!emailRegex.test(email)) {
+    return res.status(400).json({ error: 'Email invalide' });
   }
   if (password.length < 12) {
     return res.status(400).json({ error: 'Le mot de passe doit contenir au moins 12 caractères' });
@@ -126,6 +142,10 @@ app.put('/update-profile', authenticateToken, async (req: AuthRequest, res: Resp
   console.log('Requête /update-profile reçue:', { email });
   if (!email || !currentPassword || !newPassword) {
     return res.status(400).json({ error: 'Tous les champs sont requis' });
+  }
+  const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  if (!emailRegex.test(email)) {
+    return res.status(400).json({ error: 'Email invalide' });
   }
   if (newPassword.length < 12) {
     return res.status(400).json({ error: 'Le nouveau mot de passe doit contenir au moins 12 caractères' });
@@ -230,22 +250,23 @@ app.post('/contact', async (req: Request, res: Response) => {
   if (!name || !email || !message) {
     return res.status(400).json({ error: 'Tous les champs sont requis' });
   }
-  const nameRegex = /^[a-zA-Z\s]{2,}$/;
+  const nameRegex = /^[a-zA-Z]+(?:\s[a-zA-Z]+)*$/;
   const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-  const messageRegex = /^.{10,}$/;
+  const messageRegex = /^[\s\S]{10,}$/;
   if (!nameRegex.test(name)) {
-    return res.status(400).json({ error: 'Nom invalide (au moins 2 caractères, lettres seulement)' });
+    return res.status(400).json({ error: 'Nom invalide (lettres seulement, un seul espace entre mots)' });
   }
   if (!emailRegex.test(email)) {
     return res.status(400).json({ error: 'Email invalide' });
   }
-  if (!messageRegex.test(message)) {
-    return res.status(400).json({ error: 'Message trop court (au moins 10 caractères)' });
+  const sanitizedMessage = sanitizeHtml(message, { allowedTags: [], allowedAttributes: {} });
+  if (!messageRegex.test(sanitizedMessage)) {
+    return res.status(400).json({ error: `Message trop court (au moins 10 caractères, actuel: ${sanitizedMessage.length})` });
   }
   try {
     const result = await pool.query(
       'INSERT INTO contacts (name, email, message) VALUES ($1, $2, $3) RETURNING *',
-      [name, email, message]
+      [name, email, sanitizedMessage]
     );
     console.log('Message de contact enregistré:', result.rows[0]);
     res.status(201).json({ message: 'Message envoyé avec succès', data: result.rows[0] });
