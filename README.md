@@ -1,98 +1,256 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+TODOLISTkevin
+Bienvenue dans TODOLISTkevin, une application mobile de gestion de tâches développée avec React Native et un backend Node.js. Ce projet permet aux utilisateurs de créer, gérer et organiser leurs tâches avec une interface intuitive et sécurisée, le tout dans un style inspiré du PSG ! ⚽
+📋 Table des matières
 
-# Getting Started
+Fonctionnalités
+Technologies utilisées
+Couleurs du thème
+Architecture
+Sécurité
+Opérations CRUD
+Installation
+Utilisation
+Outils de développement
+Contribuer
+Licence
 
-> **Note**: Make sure you have completed the [Set Up Your Environment](https://reactnative.dev/docs/set-up-your-environment) guide before proceeding.
+✨ Fonctionnalités
 
-## Step 1: Start Metro
+Authentification : Inscription, connexion et mise à jour du profil utilisateur avec JWT.
+Gestion des tâches : Création, lecture, mise à jour et suppression de tâches (CRUD).
+Formulaire de contact : Envoi de messages sécurisés avec validation.
+Interface utilisateur : Navigation fluide avec menu burger, barre de navigation inférieure, et design responsive.
+Sécurité renforcée : Protection contre XSS, attaques par force brute, et en-têtes HTTP sécurisés.
+Thème PSG : Palette de couleurs inspirée du Paris Saint-Germain.
 
-First, you will need to run **Metro**, the JavaScript build tool for React Native.
+🛠️ Technologies utilisées
 
-To start the Metro dev server, run the following command from the root of your React Native project:
+Frontend :
+React Native 0.79.3
+Axios pour les requêtes HTTP
+React Navigation pour la navigation
+AsyncStorage pour le stockage local
+sanitize-html pour la protection XSS côté client
 
-```sh
-# Using npm
-npm start
 
-# OR using Yarn
-yarn start
-```
+Backend :
+Node.js avec Express.js
+PostgreSQL pour la base de données
+bcrypt pour le hachage des mots de passe
+jsonwebtoken (JWT) pour l’authentification
+sanitize-html pour la protection XSS
+express-rate-limit pour limiter les requêtes
+helmet pour les en-têtes de sécurité HTTP
 
-## Step 2: Build and run your app
 
-With Metro running, open a new terminal window/pane from the root of your React Native project, and use one of the following commands to build and run your Android or iOS app:
+Langages :
+TypeScript (frontend et backend)
+Java (pour Android Studio)
 
-### Android
 
-```sh
-# Using npm
-npm run android
+Base de données :
+PostgreSQL avec tables users, tasks, et contacts
 
-# OR using Yarn
-yarn android
-```
 
-### iOS
 
-For iOS, remember to install CocoaPods dependencies (this only needs to be run on first clone or after updating native deps).
+🎨 Couleurs du thème
+Le design s’inspire des couleurs emblématiques du Paris Saint-Germain :
 
-The first time you create a new project, run the Ruby bundler to install CocoaPods itself:
+Bleu marine : #003087 (fond principal, headers)
+Rouge : #DA291C (boutons, accents)
+Blanc : #FFFFFF (textes, fonds secondaires)
 
-```sh
-bundle install
-```
+🏗️ Architecture
 
-Then, and every time you update your native dependencies, run:
+Frontend (~/MonProjet) :
+Structure : Components (BottomNav, BurgerMenu), Screens (ContactScreen), Contexts (AuthContext).
+Fichiers clés : ContactScreen.tsx, AuthContext.tsx.
 
-```sh
-bundle exec pod install
-```
 
-For more information, please visit [CocoaPods Getting Started guide](https://guides.cocoapods.org/using/getting-started.html).
+Backend (~/MonProjet/backend) :
+Structure : API REST avec Express.js.
+Fichier principal : index.ts.
+Endpoints : /register, /login, /update-profile, /tasks, /contact.
 
-```sh
-# Using npm
-npm run ios
 
-# OR using Yarn
-yarn ios
-```
+Base de données :
+Tables :
+users : id, first_name, last_name, email, password
+tasks : id, user_id, title, completed
+contacts : id, name, email, message, created_at
 
-If everything is set up correctly, you should see your new app running in the Android Emulator, iOS Simulator, or your connected device.
 
-This is one way to run your app — you can also build it directly from Android Studio or Xcode.
 
-## Step 3: Modify your app
 
-Now that you have successfully run the app, let's make changes!
 
-Open `App.tsx` in your text editor of choice and make some changes. When you save, your app will automatically update and reflect these changes — this is powered by [Fast Refresh](https://reactnative.dev/docs/fast-refresh).
+🔒 Sécurité
 
-When you want to forcefully reload, for example to reset the state of your app, you can perform a full reload:
+Protection XSS :
+Frontend : Utilisation de sanitize-html pour nettoyer les entrées utilisateur (ex. : formulaire de contact).
+Backend : sanitize-html supprime les balises HTML dangereuses.
 
-- **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Dev Menu**, accessed via <kbd>Ctrl</kbd> + <kbd>M</kbd> (Windows/Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (macOS).
-- **iOS**: Press <kbd>R</kbd> in iOS Simulator.
 
-## Congratulations! :tada:
+Protection contre les attaques par force brute :
+express-rate-limit limite à 100 requêtes par IP toutes les 15 minutes.
 
-You've successfully run and modified your React Native App. :partying_face:
 
-### Now what?
+En-têtes HTTP sécurisés :
+helmet configure des en-têtes comme X-Content-Type-Options: nosniff, X-Frame-Options: DENY.
 
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [docs](https://reactnative.dev/docs/getting-started).
 
-# Troubleshooting
+Authentification :
+JWT avec expiration (1 heure) pour sécuriser les routes protégées.
+Mots de passe hachés avec bcrypt (10 rounds).
 
-If you're having issues getting the above steps to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
 
-# Learn More
+Validation des données :
+Regex stricts pour name, email, et message dans /contact et autres endpoints.
+Exemple : nameRegex: /^[a-zA-Z]+(?:\s[a-zA-Z]+)*$/
 
-To learn more about React Native, take a look at the following resources:
 
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
 
+📝 Opérations CRUD
+
+Users :
+Create : POST /register (inscription).
+Read : Via /login (récupération des infos utilisateur).
+Update : PUT /update-profile (email, mot de passe).
+Delete : Non implémenté.
+
+
+Tasks :
+Create : POST /tasks (ajouter une tâche).
+Read : GET /tasks (lister les tâches).
+Update : PUT /tasks/:id (modifier titre ou statut).
+Delete : DELETE /tasks/:id (supprimer une tâche).
+
+
+Contacts :
+Create : POST /contact (envoyer un message).
+Read/Update/Delete : Non implémenté (admin only).
+
+
+
+🚀 Installation
+Prérequis
+
+Node.js (v18+)
+PostgreSQL
+Android Studio (pour émulateur Android)
+Java JDK (pour Android)
+VS Code (éditeur recommandé)
+
+Backend
+
+Cloner le dépôt :
+git clone <url-du-repo>
+cd MonProjet/backend
+
+
+Installer les dépendances :
+npm install
+
+
+Configurer l’environnement :
+
+Créer un fichier .env :
+DB_HOST=localhost
+DB_USER=postgres
+DB_PASSWORD=your_password
+DB_NAME=todolist
+DB_PORT=5432
+JWT_SECRET=your_jwt_secret
+PORT=3000
+
+
+
+
+Créer les tables PostgreSQL :
+CREATE TABLE users (
+  id SERIAL PRIMARY KEY,
+  first_name VARCHAR(255) NOT NULL,
+  last_name VARCHAR(255) NOT NULL,
+  email VARCHAR(255) UNIQUE NOT NULL,
+  password VARCHAR(255) NOT NULL
+);
+
+CREATE TABLE tasks (
+  id SERIAL PRIMARY KEY,
+  user_id INTEGER REFERENCES users(id),
+  title VARCHAR(255) NOT NULL,
+  completed BOOLEAN DEFAULT FALSE
+);
+
+CREATE TABLE contacts (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  email VARCHAR(255) NOT NULL,
+  message TEXT NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
+Lancer le backend :
+npm run dev
+
+
+
+Frontend
+
+Aller dans le dossier frontend :
+cd ../MonProjet
+
+
+Installer les dépendances :
+npm install
+
+
+Lancer l’émulateur Android via Android Studio.
+
+Lancer l’app :
+npx react-native run-android
+
+
+
+📱 Utilisation
+
+Inscription/Connexion :
+Crée un compte via l’écran d’inscription ou connecte-toi.
+Mot de passe : Minimum 12 caractères.
+
+
+Gestion des tâches :
+Ajoute, modifie ou supprime des tâches depuis l’écran principal.
+
+
+Formulaire de contact :
+Envoie un message avec nom, email, et message (10+ caractères).
+
+
+Navigation :
+Utilise le menu burger ou la barre de navigation inférieure.
+
+
+
+🧰 Outils de développement
+
+Postman : Test des endpoints API (/register, /login, /tasks, /contact).
+Trello : Gestion des tâches et suivi du projet.
+VS Code : Éditeur pour TypeScript, avec extensions Prettier et ESLint.
+Android Studio : Émulateur Android pour tester l’app.
+Canva : Création de maquettes et assets graphiques.
+Node.js : Exécution du backend et du frontend.
+Java : Configuration d’Android Studio.
+
+🤝 Contribuer
+
+Fork le dépôt.
+Crée une branche : git checkout -b feature/nouvelle-fonction.
+Commit tes changements : git commit -m "Ajout de nouvelle fonction".
+Push : git push origin feature/nouvelle-fonction.
+Ouvre une Pull Request.
+
+📜 Licence
+Ce projet est sous licence MIT. Voir LICENSE pour plus de détails.
+
+Made with ❤️💙 by Kevin, powered by PSG vibes ! ⚽
