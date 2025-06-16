@@ -223,6 +223,38 @@ app.delete('/tasks/:id', authenticateToken, async (req: AuthRequest, res: Respon
   }
 });
 
+// Ajouter un message de contact
+app.post('/contact', async (req: Request, res: Response) => {
+  const { name, email, message } = req.body;
+  console.log('Requête /contact reçue:', { name, email, messageLength: message.length });
+  if (!name || !email || !message) {
+    return res.status(400).json({ error: 'Tous les champs sont requis' });
+  }
+  const nameRegex = /^[a-zA-Z\s]{2,}$/;
+  const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  const messageRegex = /^.{10,}$/;
+  if (!nameRegex.test(name)) {
+    return res.status(400).json({ error: 'Nom invalide (au moins 2 caractères, lettres seulement)' });
+  }
+  if (!emailRegex.test(email)) {
+    return res.status(400).json({ error: 'Email invalide' });
+  }
+  if (!messageRegex.test(message)) {
+    return res.status(400).json({ error: 'Message trop court (au moins 10 caractères)' });
+  }
+  try {
+    const result = await pool.query(
+      'INSERT INTO contacts (name, email, message) VALUES ($1, $2, $3) RETURNING *',
+      [name, email, message]
+    );
+    console.log('Message de contact enregistré:', result.rows[0]);
+    res.status(201).json({ message: 'Message envoyé avec succès', data: result.rows[0] });
+  } catch (error: any) {
+    console.error('Erreur lors de l’enregistrement du message:', error);
+    res.status(500).json({ error: 'Erreur serveur', detail: error.message });
+  }
+});
+
 const PORT: number = parseInt(process.env.PORT || '3000', 10);
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server started on port:${PORT}`);

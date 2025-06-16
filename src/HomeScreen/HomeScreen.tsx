@@ -31,9 +31,6 @@ const HomeScreen: React.FC = () => {
           <Pressable style={styles.registerButton} onPress={handleRegisterPress}>
             <Text style={styles.buttonText}>Inscription</Text>
           </Pressable>
-          <Pressable style={styles.taskButton} onPress={handleTasksPress}>
-            <Text style={styles.taskButtonText}>Mes Tâches</Text>
-          </Pressable>
         </View>
       </View>
     </SafeAreaView>
