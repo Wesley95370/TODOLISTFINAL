@@ -1,52 +1,89 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { View, Text, TextInput, Pressable, FlatList, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
+import axios from 'axios';
+import { AuthContext } from '../contexts/AuthContext';
 import BottomNav from '../BottomNav/BottomNav';
 import BurgerMenu from '../BurgerMenu/BurgerMenu';
 import styles from './TaskScreenStyles';
 
+const API_URL = 'http://10.0.2.2:3000';
+
 type Task = {
-  id: string;
+  id: number;
   title: string;
   completed: boolean;
 };
 
 const TaskScreen: React.FC = () => {
+  const { token } = useContext(AuthContext);
   const [taskTitle, setTaskTitle] = useState('');
   const [tasks, setTasks] = useState<Task[]>([]);
-  const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
+  const [editingTaskId, setEditingTaskId] = useState<number | null>(null);
   const [editedTitle, setEditedTitle] = useState('');
   const [menuVisible, setMenuVisible] = useState(false);
   const navigation = useNavigation();
 
-  const handleAddTask = () => {
+  useEffect(() => {
+    if (token) fetchTasks();
+  }, [token]);
+
+  const fetchTasks = async () => {
+    try {
+      const response = await axios.get(`${API_URL}/tasks`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setTasks(response.data);
+    } catch (error) {
+      Alert.alert('Erreur', 'Impossible de charger les tâches');
+    }
+  };
+
+  const handleAddTask = async () => {
     if (!taskTitle.trim()) {
       Alert.alert('Erreur', 'Veuillez entrer un titre pour la tâche.');
       return;
     }
-    const newTask: Task = {
-      id: Math.random().toString(),
-      title: taskTitle.trim(),
-      completed: false,
-    };
-    setTasks([...tasks, newTask]);
-    setTaskTitle('');
-    Alert.alert('Succès', 'Tâche ajoutée (simulation frontend).');
+    try {
+      const response = await axios.post(
+        `${API_URL}/tasks`,
+        { title: taskTitle.trim() },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setTasks([...tasks, response.data]);
+      setTaskTitle('');
+      Alert.alert('Succès', 'Tâche ajoutée');
+    } catch (error) {
+      Alert.alert('Erreur', 'Impossible d’ajouter la tâche');
+    }
   };
 
-  const handleToggleComplete = (id: string) => {
-    setTasks(
-      tasks.map(task =>
-        task.id === id ? { ...task, completed: !task.completed } : task
-      )
-    );
+  const handleToggleComplete = async (id: number) => {
+    const task = tasks.find(t => t.id === id);
+    if (!task) return;
+    try {
+      const response = await axios.put(
+        `${API_URL}/tasks/${id}`,
+        { completed: !task.completed },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setTasks(tasks.map(t => (t.id === id ? response.data : t)));
+    } catch (error) {
+      Alert.alert('Erreur', 'Impossible de mettre à jour la tâche');
+    }
   };
 
-  const handleDeleteTask = (id: string) => {
-    setTasks(tasks.filter(task => task.id !== id));
-    Alert.alert('Succès', 'Tâche supprimée (simulation frontend).');
+  const handleDeleteTask = async (id: number) => {
+    try {
+      await axios.delete(`${API_URL}/tasks/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setTasks(tasks.filter(task => task.id !== id));
+      Alert.alert('Succès', 'Tâche supprimée');
+    } catch (error) {
+      Alert.alert('Erreur', 'Impossible de supprimer la tâche');
+    }
   };
 
   const handleStartEdit = (task: Task) => {
@@ -54,19 +91,24 @@ const TaskScreen: React.FC = () => {
     setEditedTitle(task.title);
   };
 
-  const handleSaveEdit = (id: string) => {
+  const handleSaveEdit = async (id: number) => {
     if (!editedTitle.trim()) {
       Alert.alert('Erreur', 'Le titre de la tâche ne peut pas être vide.');
       return;
     }
-    setTasks(
-      tasks.map(task =>
-        task.id === id ? { ...task, title: editedTitle.trim() } : task
-      )
-    );
-    setEditingTaskId(null);
-    setEditedTitle('');
-    Alert.alert('Succès', 'Tâche modifiée (simulation frontend).');
+    try {
+      const response = await axios.put(
+        `${API_URL}/tasks/${id}`,
+        { title: editedTitle.trim() },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setTasks(tasks.map(task => (task.id === id ? response.data : task)));
+      setEditingTaskId(null);
+      setEditedTitle('');
+      Alert.alert('Succès', 'Tâche modifiée');
+    } catch (error) {
+      Alert.alert('Erreur', 'Impossible de modifier la tâche');
+    }
   };
 
   const handleCancelEdit = () => {
@@ -166,7 +208,7 @@ const TaskScreen: React.FC = () => {
         <FlatList
           data={tasks}
           renderItem={renderTask}
-          keyExtractor={item => item.id}
+          keyExtractor={item => item.id.toString()}
           style={styles.taskList}
           ListEmptyComponent={
             <Text style={styles.emptyText}>Aucune tâche pour le moment.</Text>

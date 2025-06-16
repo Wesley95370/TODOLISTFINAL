@@ -1,24 +1,36 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { View, Text, TextInput, Pressable, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
+import axios from 'axios';
+import { AuthContext } from '../contexts/AuthContext';
 import BottomNav from '../BottomNav/BottomNav';
 import BurgerMenu from '../BurgerMenu/BurgerMenu';
 import styles from './SettingsScreenStyles';
+
+const API_URL = 'http://10.0.2.2:3000';
 
 const SettingsScreen: React.FC = () => {
   const [email, setEmail] = useState('');
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [menuVisible, setMenuVisible] = useState(false);
+  const { token } = useContext(AuthContext);
   const navigation = useNavigation();
 
-  const validateForm = () => {
-    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    const passwordRegex = /^.{12,}$/;
+  const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  const passwordRegex = /^.{12,}$/;
 
-    if (!emailRegex.test(email)) {
+  const validateForm = () => {
+    if (!email.trim() || !currentPassword.trim() || !newPassword.trim() || !confirmPassword.trim()) {
+      Alert.alert('Erreur', 'Veuillez remplir tous les champs.');
+      return false;
+    }
+    if (!emailRegex.test(email.trim())) {
       Alert.alert('Erreur', 'Veuillez entrer un email valide.');
       return false;
     }
@@ -37,21 +49,23 @@ const SettingsScreen: React.FC = () => {
     return true;
   };
 
-  const handleSave = () => {
-    if (!email || !currentPassword || !newPassword || !confirmPassword) {
-      Alert.alert('Erreur', 'Veuillez remplir tous les champs.');
-      return;
+  const handleSave = async () => {
+    if (!validateForm()) return;
+    try {
+      await axios.put(
+        `${API_URL}/update-profile`,
+        { email: email.trim(), currentPassword, newPassword },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      Alert.alert('Succès', 'Paramètres mis à jour');
+      setEmail('');
+      setCurrentPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
+    } catch (error: any) {
+      const message = error.response?.data?.error || 'Échec de la mise à jour.';
+      Alert.alert('Erreur', message);
     }
-
-    if (!validateForm()) {
-      return;
-    }
-
-    Alert.alert('Succès', 'Paramètres mis à jour (simulation frontend).');
-    setEmail('');
-    setCurrentPassword('');
-    setNewPassword('');
-    setConfirmPassword('');
   };
 
   return (
@@ -82,30 +96,54 @@ const SettingsScreen: React.FC = () => {
             keyboardType="email-address"
             autoCapitalize="none"
           />
-          <TextInput
-            style={styles.input}
-            placeholder="Mot de passe actuel"
-            placeholderTextColor="#A0A0A0"
-            value={currentPassword}
-            onChangeText={setCurrentPassword}
-            secureTextEntry
-          />
-          <TextInput
-            style={styles.input}
-            placeholder="Nouveau mot de passe"
-            placeholderTextColor="#A0A0A0"
-            value={newPassword}
-            onChangeText={setNewPassword}
-            secureTextEntry
-          />
-          <TextInput
-            style={styles.input}
-            placeholder="Confirmer le nouveau mot de passe"
-            placeholderTextColor="#A0A0A0"
-            value={confirmPassword}
-            onChangeText={setConfirmPassword}
-            secureTextEntry
-          />
+          <View style={styles.passwordContainer}>
+            <TextInput
+              style={styles.input}
+              placeholder="Mot de passe actuel"
+              placeholderTextColor="#A0A0A0"
+              value={currentPassword}
+              onChangeText={setCurrentPassword}
+              secureTextEntry={!showCurrentPassword}
+            />
+            <Pressable
+              style={styles.toggleButton}
+              onPress={() => setShowCurrentPassword(!showCurrentPassword)}
+            >
+              <Text style={styles.toggleButtonText}>{showCurrentPassword ? '👁️' : '🙈'}</Text>
+            </Pressable>
+          </View>
+          <View style={styles.passwordContainer}>
+            <TextInput
+              style={styles.input}
+              placeholder="Nouveau mot de passe"
+              placeholderTextColor="#A0A0A0"
+              value={newPassword}
+              onChangeText={setNewPassword}
+              secureTextEntry={!showNewPassword}
+            />
+            <Pressable
+              style={styles.toggleButton}
+              onPress={() => setShowNewPassword(!showNewPassword)}
+            >
+              <Text style={styles.toggleButtonText}>{showNewPassword ? '👁️' : '🙈'}</Text>
+            </Pressable>
+          </View>
+          <View style={styles.passwordContainer}>
+            <TextInput
+              style={styles.input}
+              placeholder="Confirmer le nouveau mot de passe"
+              placeholderTextColor="#A0A0A0"
+              value={confirmPassword}
+              onChangeText={setConfirmPassword}
+              secureTextEntry={!showConfirmPassword}
+            />
+            <Pressable
+              style={styles.toggleButton}
+              onPress={() => setShowConfirmPassword(!showConfirmPassword)}
+            >
+              <Text style={styles.toggleButtonText}>{showConfirmPassword ? '👁️' : '🙈'}</Text>
+            </Pressable>
+          </View>
           <Pressable style={styles.saveButton} onPress={handleSave}>
             <Text style={styles.buttonText}>Enregistrer</Text>
           </Pressable>

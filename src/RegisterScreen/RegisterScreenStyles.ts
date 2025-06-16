@@ -90,6 +90,23 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     textAlign: 'center',
   },
+
+
+  passwordContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: '100%',
+  },
+  toggleButton: {
+    position: 'absolute',
+    right: 10,
+    padding: 5,
+  },
+  toggleButtonText: {
+    fontSize: 18,
+    color: '#003087',
+  },
+
 });
 
 export default styles;

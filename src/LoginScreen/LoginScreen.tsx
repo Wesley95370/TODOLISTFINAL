@@ -1,16 +1,45 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, Pressable } from 'react-native';
+import React, { useState, useContext } from 'react';
+import { View, Text, TextInput, Pressable, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
+import { AuthContext } from '../contexts/AuthContext';
 import styles from './LoginScreenStyles';
 
 const LoginScreen: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const { login } = useContext(AuthContext);
   const navigation = useNavigation();
 
-  const handleLogin = () => {
-    console.log('Connexion avec:', { email, password });
+  const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  const passwordRegex = /^.{12,}$/;
+
+  const validateForm = () => {
+    if (!email.trim() || !password.trim()) {
+      Alert.alert('Erreur', 'Veuillez remplir tous les champs.');
+      return false;
+    }
+    if (!emailRegex.test(email.trim())) {
+      Alert.alert('Erreur', 'Veuillez entrer un email valide.');
+      return false;
+    }
+    if (!passwordRegex.test(password)) {
+      Alert.alert('Erreur', 'Le mot de passe doit contenir au moins 12 caractères.');
+      return false;
+    }
+    return true;
+  };
+
+  const handleLogin = async () => {
+    if (!validateForm()) return;
+    try {
+      await login(email.trim(), password.trim());
+      Alert.alert('Succès', 'Connexion réussie');
+      navigation.navigate('Tasks' as never);
+    } catch (error) {
+      Alert.alert('Erreur', 'Email ou mot de passe incorrect.');
+    }
   };
 
   const handleBack = () => {
@@ -34,14 +63,22 @@ const LoginScreen: React.FC = () => {
             keyboardType="email-address"
             autoCapitalize="none"
           />
-          <TextInput
-            style={styles.input}
-            placeholder="Mot de passe"
-            placeholderTextColor="#A0A0A0"
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry
-          />
+          <View style={styles.passwordContainer}>
+            <TextInput
+              style={styles.input}
+              placeholder="Mot de passe"
+              placeholderTextColor="#A0A0A0"
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry={!showPassword}
+            />
+            <Pressable
+              style={styles.toggleButton}
+              onPress={() => setShowPassword(!showPassword)}
+            >
+              <Text style={styles.toggleButtonText}>{showPassword ? '👁️' : '🙈'}</Text>
+            </Pressable>
+          </View>
           <Pressable style={styles.loginButton} onPress={handleLogin}>
             <Text style={styles.buttonText}>Se connecter</Text>
           </Pressable>

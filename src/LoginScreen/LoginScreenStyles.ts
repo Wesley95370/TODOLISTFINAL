@@ -1,93 +1,70 @@
 import { StyleSheet } from 'react-native';
 
-const styles = StyleSheet.create({
+export default StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#003087',
+    backgroundColor: '#FFFFFF', // Blanc PSG
   },
   content: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingVertical: 40,
     paddingHorizontal: 20,
+    justifyContent: 'center',
+  },
+  backButton: {
+    position: 'absolute',
+    top: 20,
+    left: 20,
+    padding: 10,
+  },
+  backButtonText: {
+    color: '#003087', // Bleu PSG
+    fontSize: 16,
+    fontWeight: 'bold',
   },
   title: {
-    fontSize: 36,
+    fontSize: 28,
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: '#003087', // Bleu PSG
     textAlign: 'center',
-    textShadowColor: '#DA291C',
-    textShadowOffset: { width: 2, height: 2 },
-    textShadowRadius: 4,
-    marginBottom: 40,
+    marginBottom: 30,
   },
   formContainer: {
     width: '100%',
-    flexDirection: 'column',
-    alignItems: 'center',
-    gap: 20,
   },
   input: {
-    backgroundColor: '#FFFFFF',
-    width: '80%',
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderRadius: 25,
+    backgroundColor: '#F5F5F5',
+    borderRadius: 8,
+    padding: 15,
+    marginBottom: 15,
     fontSize: 16,
-    color: '#003087',
-    borderWidth: 2,
-    borderColor: '#DA291C',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 5,
+    color: '#000000',
+    borderWidth: 1,
+    borderColor: '#DA291C', // Rouge PSG
   },
   loginButton: {
-    backgroundColor: '#DA291C',
-    paddingVertical: 14,
-    paddingHorizontal: 40,
-    borderRadius: 25,
-    width: '80%',
+    backgroundColor: '#DA291C', // Rouge PSG
+    borderRadius: 8,
+    padding: 15,
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 5,
   },
   buttonText: {
+    color: '#FFFFFF', // Blanc PSG
     fontSize: 18,
-    fontWeight: '600',
+    fontWeight: 'bold',
+  },
+
+  passwordContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: '100%',
+  },
+  toggleButton: {
+    position: 'absolute',
+    right: 10,
+    padding: 5,
+  },
+  toggleButtonText: {
+    fontSize: 18,
     color: '#003087',
-  },
-  backButton: {
-    backgroundColor: '#FFFFFF',
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 20,
-    alignSelf: 'flex-start',
-    borderWidth: 2,
-    borderColor: '#DA291C',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 5,
-    marginBottom: 20,
-  },
-  backButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#003087',
-  },
-  errorText: {
-    fontSize: 16,
-    color: '#DA291C',
-    marginBottom: 20,
-    textAlign: 'center',
   },
 });
-
-export default styles;

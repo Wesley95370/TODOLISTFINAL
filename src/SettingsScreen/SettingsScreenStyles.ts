@@ -97,6 +97,21 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#003087', // Bleu PSG
   },
+
+  passwordContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: '100%',
+  },
+  toggleButton: {
+    position: 'absolute',
+    right: 10,
+    padding: 5,
+  },
+  toggleButtonText: {
+    fontSize: 18,
+    color: '#003087',
+  },
 });
 
 export default styles;
